@@ -11,4 +11,11 @@ openAPIRouter.get("/swagger.json", (_req: Request, res: Response) => {
 	res.send(openAPIDocument);
 });
 
-openAPIRouter.use("/", swaggerUi.serve, swaggerUi.setup(openAPIDocument));
+openAPIRouter.use("/", swaggerUi.serve, swaggerUi.setup(openAPIDocument, {
+	swaggerOptions: {
+		requestInterceptor: (req: Request & { credentials: string }) => {
+			req.credentials = "include"; // makes Swagger send cookies
+			return req;
+		}
+	}
+}));

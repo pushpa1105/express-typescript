@@ -2,9 +2,8 @@ import { z } from "zod";
 
 export const commonValidations = {
 	id: z
+		.string(),
+	mongoId: z
 		.string()
-		.refine((data) => !Number.isNaN(Number(data)), "ID must be a numeric value")
-		.transform(Number)
-		.refine((num) => num > 0, "ID must be a positive number"),
-	// ... other common validations
+		.regex(/^[a-fA-F0-9]{24}$/, "Invalid MongoDB ObjectId")
 };

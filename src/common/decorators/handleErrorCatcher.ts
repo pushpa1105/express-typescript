@@ -10,6 +10,7 @@ function ErrorCatcher(message: string) {
             try {
                 return await original.apply(this, args);
             } catch (ex) {
+                console.log("Error caught by ErrorCatcher:", ex);
                 const errorMessage = `Error in ${message}: ${(ex as Error).message}`;
                 logger.error(errorMessage);
                 return ServiceResponse.failure(

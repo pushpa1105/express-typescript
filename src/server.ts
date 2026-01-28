@@ -8,6 +8,7 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 import { router } from "@/api";
+import cookieParser from "cookie-parser";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();
@@ -17,8 +18,17 @@ app.set("trust proxy", true);
 
 // Middlewares
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || env.CORS_ORIGIN.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }, credentials: true
+}));
 app.use(helmet());
 app.use(rateLimiter);
 

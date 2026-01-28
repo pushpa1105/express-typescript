@@ -5,14 +5,7 @@ import { ServiceResponse } from "@/common/models/serviceResponse";
 import { SafeUser } from "./userModel";
 import { CreateUserData, LoginUserData } from "./userSchema";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { env } from "@/common/utils/envConfig";
 import { ErrorCatcher } from "@/common/decorators/handleErrorCatcher";
-
-interface LoginUserResponse {
-	token: string;
-	user: SafeUser
-}
 
 export class UserService {
 	private userRepository: UserRepository;
@@ -38,50 +31,6 @@ export class UserService {
 		return ServiceResponse.success<SafeUser | null>("User created successfully", user)
 	}
 
-	@ErrorCatcher("Service.loginUser")
-	async loginUser(loginData: LoginUserData): Promise<ServiceResponse<LoginUserResponse | null>> {
-		console.log("Login Data:", loginData);
-		const user = await this.userRepository.findByEmailAsync(loginData.email)
-
-		if (!user) {
-			return ServiceResponse.failure(
-				"User not found.",
-				null,
-				StatusCodes.NOT_FOUND
-			)
-		}
-
-		const passwordMatches = await bcrypt.compare(loginData.password, user.password);
-
-		if (!passwordMatches) {
-			return ServiceResponse.failure(
-				"Invalid credentials",
-				null,
-				StatusCodes.UNAUTHORIZED
-			)
-		}
-
-		const token = jwt.sign(
-			{
-				email: user.email,
-				userId: user._id,
-				role: user.role
-			},
-			env.JWT_SECRET,
-			{
-				expiresIn: '1s'
-			}
-		)
-
-		return ServiceResponse.success(
-			'Success',
-			{
-				token,
-				user,
-			},
-		)
-	}
-
 	// Retrieves all users from the database
 	@ErrorCatcher("Service.findAll")
 	async findAll(): Promise<ServiceResponse<SafeUser[] | null>> {
@@ -94,7 +43,7 @@ export class UserService {
 
 	// Retrieves a single user by their ID
 	@ErrorCatcher("Service.findById")
-	async findById(id: number): Promise<ServiceResponse<SafeUser | null>> {
+	async findById(id: string): Promise<ServiceResponse<SafeUser | null>> {
 		const user = await this.userRepository.findByIdAsync(id);
 		if (!user) {
 			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
@@ -102,14 +51,14 @@ export class UserService {
 		return ServiceResponse.success<SafeUser>("User found", user);
 	}
 
-	//Retrieves logged in user details
-	async getCurrentUser(userId: number): Promise<ServiceResponse<SafeUser | null>> {
-		const user = await this.userRepository.findByIdAsync(userId);
+	// Retrieves a single user by their ID
+	@ErrorCatcher("Service.findByEmail")
+	async findByEmail(email: string): Promise<ServiceResponse<SafeUser | null>> {
+		const user = await this.userRepository.findByEmailAsync(email);
 		if (!user) {
-			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND)
+			return ServiceResponse.failure("User not found", null, StatusCodes.NOT_FOUND);
 		}
-
-		return ServiceResponse.success<SafeUser>("User found", user)
+		return ServiceResponse.success<SafeUser>("User found", user);
 	}
 }
 

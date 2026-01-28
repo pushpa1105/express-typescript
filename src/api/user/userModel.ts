@@ -45,7 +45,7 @@ const UserSchema = new Schema<UserDocument>(
             type: String,
             default: 'user',
             required: true,
-        }
+        },
     },
     {
         timestamps: true,

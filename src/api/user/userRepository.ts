@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { SafeUser, UserModel } from "./userModel";
 import { CreateUserData } from "./userSchema";
 
@@ -6,7 +7,7 @@ export class UserRepository {
 		return await UserModel.find({});
 	}
 
-	async findByIdAsync(id: number): Promise<SafeUser | null> {
+	async findByIdAsync(id: string): Promise<SafeUser | null> {
 		return await UserModel.findById(id) || null;
 	}
 
@@ -17,5 +18,9 @@ export class UserRepository {
 
 	async createUser(userData: CreateUserData): Promise<SafeUser | null> {
 		return await UserModel.insertOne(userData) || null;
+	}
+
+	async updateUser(id: number, updatedUserData: Partial<SafeUser>): Promise<SafeUser> {
+		return await UserModel.findByIdAndUpdate(id, updatedUserData, { new: true }) as SafeUser;
 	}
 }

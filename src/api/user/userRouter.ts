@@ -30,35 +30,3 @@ userRegistry.registerPath({
 });
 
 userRouter.get("/:id", validateRequest(GetUserSchema), userController.getUser);
-
-
-userRegistry.registerPath({
-	method: "post",
-	path: "/users/register",
-	tags: ["User"],
-	request: { body: { content: { "application/json": { schema: CreateUserSchema.shape.body } } } },
-	responses: createApiResponse(UserSchema, "Success"),
-})
-
-userRouter.post("/register", validateRequest(CreateUserSchema), userController.createUser)
-
-
-userRegistry.registerPath({
-	method: "post",
-	path: "/users/login",
-	tags: ["User"],
-	request: { body: { content: { "application/json": { schema: LoginUserSchema.shape.body } } } },
-	responses: createApiResponse(LoginResponseSchema, "Success")
-})
-
-userRouter.post("/login", validateRequest(LoginUserSchema), userController.loginUser)
-
-userRegistry.registerPath({
-	method: "get",
-	path: "/users/me/profile",
-	tags: ["User"],
-	security: [{ bearerAuth: [] }],
-	responses: createApiResponse(UserSchema, "Success")
-})
-
-userRouter.get("/me/profile", auth, userController.getCurrentUser);
