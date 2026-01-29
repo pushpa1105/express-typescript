@@ -3,12 +3,16 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "@/common/utils/envConfig";
 
 export interface JwtUserData extends JwtPayload {
-    userId: string;
+    user: {
+        _id: string,
+        role?: string
+    }
 }
 
 export interface AuthRequest extends Request {
     userData?: JwtPayload & {
-        userId: string;
+        _id: string,
+        role?: string
     }
 };
 
@@ -21,7 +25,7 @@ export const auth = (req: AuthRequest, res: Response, next: NextFunction) => {
         }
         const decoded = jwt.verify(authToken, env.AUTH_SECRET) as JwtUserData;
 
-        req.userData = decoded
+        req.userData = decoded?.user
         next()
     } catch (error) {
         console.error("Authentication Error:", error);

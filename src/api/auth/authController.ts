@@ -1,13 +1,17 @@
-import { AuthRequest } from "@/common/middleware/auth";
+import { AuthRequest, JwtUserData } from "@/common/middleware/auth";
 import type { RequestHandler, Response, Request } from "express";
 import { authService } from "@/api/auth/authService";
 import { CreateUserData } from "../user/userSchema";
 import { SafeUser } from "../user/userModel";
-import { createJti, generateAuthToken } from "@/common/utils/token";
+import { attachAuthCookies, createJti, generateAuthToken, generateRefreshToken } from "@/common/utils/token";
+import { StatusCodes } from "http-status-codes";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { env } from "@/common/utils/envConfig";
+import { ErrorCatcher } from "@/common/decorators/handleErrorCatcher";
 
 class AuthController {
     public getCurrentUser: RequestHandler = async (req: AuthRequest, res: Response) => {
-        const { userId } = req?.userData!;
+        const { _id: userId } = req?.userData!;
 
         const serviceResponse = await authService.getAuthenticatedUser(userId)
         res.status(serviceResponse.statusCode).send(serviceResponse)
@@ -29,19 +33,25 @@ class AuthController {
         }
 
         const user = serviceResponse.data?.user as SafeUser;
-
-
-        const jti = createJti();
-        const authToken = generateAuthToken(user, jti);
-
-        res.cookie("authToken", authToken, {
-            httpOnly: true,
-            secure: true,
-            maxAge: 60 * 60 * 24 * 7 * 1000,  // in milliseconds
-            sameSite: "none",
-        });
+        attachAuthCookies(res, user)
 
         res.status(serviceResponse.statusCode).send(serviceResponse)
+    }
+
+    public refresh: RequestHandler = async (req: Request, res: Response) => {
+        const refreshToken = req.cookies.refreshToken
+
+        if (!refreshToken) {
+            return res.status(StatusCodes.UNAUTHORIZED).send('Not Authorized.')
+        }
+
+        try {
+            const payload = jwt.verify(refreshToken, env.REFRESH_SECRET) as JwtUserData
+            attachAuthCookies(res, payload as Partial<SafeUser>)
+            return res.status(StatusCodes.OK).send('Cookie Refreshed.')
+        } catch (error) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error.')
+        }
     }
 }
 

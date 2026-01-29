@@ -39,3 +39,13 @@ authRegistry.registerPath({
 })
 
 authRouter.post("/login", validateRequest(LoginUserSchema), authController.login)
+
+authRegistry.registerPath({
+    method: "post",
+    path: "/auth/refresh",
+    tags: ["Auth"],
+    security: [{ cookieAuth: [] }],
+    responses: createApiResponse(LoginResponseSchema, "Success")
+})
+
+authRouter.post("/auth/refresh", authController.refresh)
