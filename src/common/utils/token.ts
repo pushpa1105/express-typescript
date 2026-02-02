@@ -41,14 +41,28 @@ export const attachAuthCookies = (res: Response, payload: Partial<SafeUser>) => 
     res.cookie("authToken", authToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 60 * 60 * 1000,  // in milliseconds
+        maxAge: 7 * 24 * 60 * 60 * 1000,  // in milliseconds
         sameSite: "none",
     });
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 60 * 60 * 24 * 7 * 1000,  // in milliseconds
+        maxAge: 30 * 24 * 60 * 60 * 1000,  // in milliseconds
+        sameSite: "none",
+    });
+}
+
+export const clearAuthCookies = (res: Response) => {
+    res.clearCookie("authToken", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    });
+
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: true,
         sameSite: "none",
     });
 }

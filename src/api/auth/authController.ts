@@ -3,7 +3,7 @@ import type { RequestHandler, Response, Request } from "express";
 import { authService } from "@/api/auth/authService";
 import { CreateUserData } from "../user/userSchema";
 import { SafeUser } from "../user/userModel";
-import { attachAuthCookies, createJti, generateAuthToken, generateRefreshToken } from "@/common/utils/token";
+import { attachAuthCookies, clearAuthCookies, createJti, generateAuthToken, generateRefreshToken } from "@/common/utils/token";
 import { StatusCodes } from "http-status-codes";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "@/common/utils/envConfig";
@@ -49,6 +49,15 @@ class AuthController {
             const payload = jwt.verify(refreshToken, env.REFRESH_SECRET) as JwtUserData
             attachAuthCookies(res, payload as Partial<SafeUser>)
             return res.status(StatusCodes.OK).send('Cookie Refreshed.')
+        } catch (error) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error.')
+        }
+    }
+
+    public logout: RequestHandler = async (req: Request, res: Response) => {
+        try {
+            clearAuthCookies(res);
+            return res.status(StatusCodes.OK).send('Logged out successfully.')
         } catch (error) {
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error.')
         }

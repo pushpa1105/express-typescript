@@ -20,9 +20,9 @@ const envSchema = z.object({
 
 	COMMON_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(1000),
 	AUTH_SECRET: z.string(),
-	AUTH_EXPIRY: z.string().default('1h'),
+	AUTH_EXPIRY: z.string().default('7d'),
 	REFRESH_SECRET: z.string(),
-	REFRESH_EXPIRY: z.string().default('7d'),
+	REFRESH_EXPIRY: z.string().default('30d'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -5,6 +5,7 @@ import { CreateUserSchema, LoginResponseSchema, LoginUserSchema, UserSchema } fr
 import { auth } from "@/common/middleware/auth";
 import { authController } from "@/api/auth/authController";
 import { validateRequest } from "@/common/utils/httpHandlers";
+import z from "zod";
 
 export const authRegistry = new OpenAPIRegistry();
 export const authRouter: Router = express.Router();
@@ -49,3 +50,13 @@ authRegistry.registerPath({
 })
 
 authRouter.post("/auth/refresh", authController.refresh)
+
+authRegistry.registerPath({
+    method: "post",
+    path: "/logout",
+    tags: ["Auth"],
+    security: [{ cookieAuth: [] }],
+    responses: createApiResponse(z.null(), "Success")
+})
+
+authRouter.post("/logout", authController.logout)
