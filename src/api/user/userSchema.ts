@@ -31,7 +31,7 @@ export const CreateUserSchema = z.object({
 		name: z.string(),
 		email: z.string().email(),
 		password: z.string().min(6, 'Password should be at least of 6 characters.'),
-		age: z.number(),
+		age: z.number().default(18),
 	})
 })
 

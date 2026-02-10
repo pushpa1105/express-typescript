@@ -35,7 +35,6 @@ const UserSchema = new Schema<UserDocument>(
         },
         age: {
             type: Number,
-            required: true,
         },
         password: {
             type: String,
