@@ -24,6 +24,7 @@ export class AuthService {
 
     @ErrorCatcher("Service.createUser")
     async createUser(userData: CreateUserData): Promise<ServiceResponse<SafeUser | null>> {
+        console.log('HOURRRR')
         return await this.userService.createUser(userData);
     }
 

@@ -6,12 +6,22 @@ import { SafeUser } from "./userModel";
 import { CreateUserData, LoginUserData } from "./userSchema";
 import bcrypt from "bcryptjs";
 import { ErrorCatcher } from "@/common/decorators/handleErrorCatcher";
+import { workspaceService } from "../workspace/workspaceService";
 
 export class UserService {
 	private userRepository: UserRepository;
 
 	constructor(repository: UserRepository = new UserRepository()) {
 		this.userRepository = repository;
+	}
+
+	@ErrorCatcher("UserService.setActiveWorkspace")
+	async setActiveWorkspace(userId: string, workspaceId: string): Promise<ServiceResponse<SafeUser | null>> {
+		const updatedUser = await this.userRepository.updateUser(userId, {
+			activeWorkspace: workspaceId
+		})
+
+		return ServiceResponse.success('Active Workspace Updated successfully.', updatedUser)
 	}
 
 	// Creates a new user in the database
@@ -28,7 +38,11 @@ export class UserService {
 		userData.password = hashedPassword
 		const user = await this.userRepository.createUser(userData)
 
-		return ServiceResponse.success<SafeUser | null>("User created successfully", user)
+		const res = await workspaceService.createDefaultWorkspace(user!)
+
+		const serviceResponse = await this.setActiveWorkspace(user?._id as string, res?.data?.id)
+
+		return ServiceResponse.success<SafeUser | null>("User created successfully", serviceResponse?.data)
 	}
 
 	// Retrieves all users from the database
