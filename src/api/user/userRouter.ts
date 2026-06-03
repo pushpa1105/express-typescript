@@ -1,7 +1,7 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import express, { type Router } from "express";
 import { z } from "zod";
-import { CreateUserSchema, GetUserSchema, LoginResponseSchema, LoginUserSchema, UserSchema } from "@/api/user/userSchema";
+import { GetUserSchema, SetActiveWorkspaceSchema, UserSchema } from "@/api/user/userSchema";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { validateRequest } from "@/common/utils/httpHandlers";
 import { userController } from "./userController";
@@ -30,3 +30,14 @@ userRegistry.registerPath({
 });
 
 userRouter.get("/:id", validateRequest(GetUserSchema), userController.getUser);
+
+userRegistry.registerPath({
+	method: "patch",
+	path: "/users/me/active-workspace",
+	tags: ["User"],
+	request: { body: { content: { "application/json": { schema: SetActiveWorkspaceSchema.shape.body } } } },
+	responses: createApiResponse(UserSchema, "Success"),
+})
+
+userRouter.patch("/me/active-workspace", auth, validateRequest(SetActiveWorkspaceSchema), userController.setActiveWorkspace);
+

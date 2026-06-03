@@ -20,7 +20,7 @@ export class UserRepository {
 		return await UserModel.insertOne(userData) || null;
 	}
 
-	async updateUser(id: number, updatedUserData: Partial<SafeUser>): Promise<SafeUser> {
+	async updateUser(id: string, updatedUserData: Partial<SafeUser>): Promise<SafeUser> {
 		return await UserModel.findByIdAndUpdate(id, updatedUserData, { new: true }) as SafeUser;
 	}
 }

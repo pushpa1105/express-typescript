@@ -10,16 +10,19 @@ export interface UserDocument extends Document {
     role: UserRole;
     createdAt: Date;
     updatedAt: Date;
+    activeWorkspace?: Schema.Types.ObjectId;
 }
 
 export interface SafeUser {
     _id: string | Object;
+    name: string;
     password: string;
     email: string;
     age: number;
     role: UserRole;
     createdAt: Date;
     updatedAt: Date;
+    activeWorkspace?: string;
 }
 
 const UserSchema = new Schema<UserDocument>(
@@ -44,6 +47,10 @@ const UserSchema = new Schema<UserDocument>(
             type: String,
             default: 'user',
             required: true,
+        },
+        activeWorkspace: {
+            type: Schema.Types.ObjectId,
+            ref: "Workspace",
         },
     },
     {

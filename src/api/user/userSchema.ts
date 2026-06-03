@@ -46,3 +46,9 @@ export const LoginUserSchema = z.object({
 export const GetUserSchema = z.object({
 	params: z.object({ id: commonValidations.mongoId }),
 });
+
+export const SetActiveWorkspaceSchema = z.object({
+	body: z.object({
+		workspaceId: z.string()
+	})
+});
