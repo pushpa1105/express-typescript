@@ -20,7 +20,6 @@ export class WorkspaceController {
     }
 
     public getMyWorkspaces: RequestHandler = async (req: AuthRequest, res: Response) => {
-        console.log('UUUUUUU')
         const pagination = buildPagination(req.query)
 
         const serviceResponse = await workspaceService.getMyWorkspaces({

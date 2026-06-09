@@ -1,4 +1,5 @@
 import z from "zod";
+import mongoose from "mongoose";
 
 export const PaginationSchema = z.object({
     page: z.number().int().positive().optional(),
@@ -29,3 +30,10 @@ export interface DocumentWithMetaData<T> {
     data: T;
     meta: MetaData;
 }
+
+export const ObjectIdSchema = () => z.string().refine(
+    (id) => mongoose.Types.ObjectId.isValid(id),
+    {
+        message: "Invalid ID",
+    }
+);

@@ -9,6 +9,7 @@ export const validateRequest = (schema: ZodSchema) => async (req: Request, res: 
 		await schema.parseAsync({ body: req.body, query: req.query, params: req.params });
 		next();
 	} catch (err) {
+		console.log('OPPPPP', err)
 		const errors = (err as ZodError).errors.map((e) => {
 			const fieldPath = e.path.length > 0 ? e.path.join(".") : "root";
 			return `${fieldPath}: ${e.message}`;
