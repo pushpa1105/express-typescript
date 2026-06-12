@@ -26,17 +26,28 @@ export class PanaController {
         res.status(serviceResponse.statusCode).send(serviceResponse)
     }
 
+    public updateTitle: RequestHandler = async (req: AuthRequest, res: Response) => {
+        console.log('MMEMMEMEMEMEM')
+        console.log(req.params.id)
+        console.log('ABBBB', req.body)
+        const serviceResponse = await panaService.updatePanaById(req.params.id, {
+            title: req.body.title
+        })
+        res.status(serviceResponse.statusCode).send(serviceResponse)
+    }
+
     public getActiveWorkspacePanas: RequestHandler = async (req: AuthRequest, res: Response) => {
         const { activeWorkspace, _id } = req.userData || {}
+        const { parentId } = req.query || {}
 
-        console.log('UIIIIIII', req.userData)
         const pagination = buildPagination(req.query)
 
         if (!activeWorkspace) return res.status(StatusCodes.NOT_FOUND).send({ message: 'User does not have active workspace' })
 
         const serviceResponse = await panaService.getActiveWorkspacePanas({
             pagination,
-            workspaceId: activeWorkspace
+            workspaceId: activeWorkspace,
+            parentId: parentId as string | undefined
         })
 
         res.status(serviceResponse.statusCode).send(serviceResponse)

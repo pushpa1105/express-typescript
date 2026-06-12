@@ -1,6 +1,6 @@
 import { ErrorCatcher } from "@/common/decorators/handleErrorCatcher";
 import { PanaRepository } from "./panaRepository";
-import { CreatePanaData } from "./panaSchema";
+import { CreatePanaData, PanaData } from "./panaSchema";
 import { ServiceResponse } from "@/common/models/serviceResponse";
 import { PanaDocument } from "./panaModel";
 import { DocumentWithMetaData, Pagination } from "@/common/schema";
@@ -44,10 +44,23 @@ export class PanaService {
         return ServiceResponse.success('Pana deleted successfully', null)
     }
 
+    @ErrorCatcher("PanaService.updatePanaById")
+    async updatePanaById(panaId: string, panaData: Partial<PanaDocument>): Promise<ServiceResponse<any>> {
+
+        const updatedPana = await this.panaRepository.updateById(panaId, panaData)
+
+        return ServiceResponse.success('Pana updated successfully', updatedPana)
+    }
+
     @ErrorCatcher("PanaService.getActiveWorkspacePanas")
-    async getActiveWorkspacePanas({ pagination, workspaceId }: { pagination: Pagination, workspaceId: String }): Promise<ServiceResponse<DocumentWithMetaData<PanaDocument[]>>> {
+    async getActiveWorkspacePanas({ pagination, workspaceId, parentId }: { pagination: Pagination, workspaceId: string, parentId?: string }): Promise<ServiceResponse<DocumentWithMetaData<PanaDocument[]> | null>> {
         const filters = {
             workspaceId,
+            parentId,
+        }
+
+        if (parentId && !mongoose.Types.ObjectId.isValid(parentId)) {
+            return ServiceResponse.failure('Invalid ID', null, StatusCodes.UNPROCESSABLE_ENTITY)
         }
 
         const panas = await this.panaRepository.findWithPagination({

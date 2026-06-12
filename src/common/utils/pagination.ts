@@ -1,10 +1,4 @@
-export interface PaginationQuery {
-    page?: string;
-    limit?: string;
-    sort?: string;
-    search?: string;
-    [key: string]: any;
-}
+import { Pagination, PaginationQuery } from "../schema";
 
 export const buildPagination = (query: PaginationQuery): Pagination => {
     const page = Math.max(parseInt(query.page || "1"), 1);
@@ -12,11 +6,17 @@ export const buildPagination = (query: PaginationQuery): Pagination => {
 
     const skip = (page - 1) * limit;
 
-    const sort = query.sort
-        ? query.sort.startsWith("-")
-            ? { [query.sort.substring(1)]: -1 }
-            : { [query.sort]: 1 }
-        : { createdAt: -1 };
+    const sort: Record<string, any> | undefined = { createdAt: -1 }
 
+    if (query?.sort) {
+
+        query.sort.split(",").forEach((qs) => {
+            const key = qs.trim()
+            const isDesc = key.startsWith("-")
+
+            sort[isDesc ? key.substring(1) : key] = isDesc ? -1 : 1
+        })
+
+    }
     return { page, limit, skip, sort };
 };

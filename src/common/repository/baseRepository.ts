@@ -31,4 +31,10 @@ export abstract class BaseRepository<T> {
     async deleteManyByIds(ids: string[]) {
         return await this.model.deleteMany({ _id: { $in: ids } })
     }
+
+    async updateById(id: string, data: Partial<T>) {
+        await this.model.updateOne({ _id: id }, data)
+
+        return await this.findById(id)
+    }
 }

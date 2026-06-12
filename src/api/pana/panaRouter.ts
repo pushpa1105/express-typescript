@@ -1,11 +1,12 @@
 import { auth } from "@/common/middleware/auth";
 import { validateRequest } from "@/common/utils/httpHandlers";
 import express, { type Router } from "express";
-import { CreatePanaSchema, PanaSchema } from "./panaSchema";
+import { CreatePanaSchema, PanaSchema, UpdateTitleSchema } from "./panaSchema";
 import { panaController } from "./panaController";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import z, { any } from "zod";
+import { PaginationQuerySchema, PaginationSchema } from "@/common/schema";
 
 export const panaRegistry = new OpenAPIRegistry();
 export const panaRouter: Router = express.Router();
@@ -48,7 +49,36 @@ panaRegistry.registerPath({
     path: "/panas/current-workspace",
     tags: ['Pana'],
     security: [{ cookieAuth: [] }],
+    request: {
+        query: z.object({
+            parentId: z.string().optional(),
+            ...PaginationQuerySchema.shape
+        }),
+    },
     responses: createApiResponse(z.null(), "Success")
 })
 
 panaRouter.get('/current-workspace', auth, panaController.getActiveWorkspacePanas)
+
+panaRegistry.registerPath({
+    method: "post",
+    path: "/panas/{id}/update-title",
+    tags: ['Pana'],
+    security: [{ cookieAuth: [] }],
+    request: {
+        params: z.object({
+            id: z.string(),
+        }),
+        body: {
+            content: {
+                "application/json": {
+                    schema: UpdateTitleSchema.shape.body
+                }
+            }
+        },
+
+    },
+    responses: createApiResponse(PanaSchema, "Success")
+})
+
+panaRouter.post('/:id/update-title', auth, validateRequest(UpdateTitleSchema), panaController.updateTitle)
