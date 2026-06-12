@@ -7,8 +7,8 @@ export type GetMyWorkspace = z.infer<typeof GetMyWorkspaceSchema>;
 
 export const CreateWorkspaceSchema = z.object({
     body: z.object({
-        name: z.string(),
-        type: z.string(),
+        name: z.string().min(1, "Name is required"),
+        type: z.string().min(1, "Type is required"),
         teamId: z.string().optional(),
     })
 })

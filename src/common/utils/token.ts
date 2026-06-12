@@ -8,11 +8,12 @@ export const hashToken = (token: string): string => crypto.createHash('sha256').
 export const createJti = (): string => crypto.randomBytes(16).toString('hex')
 
 export const generateAuthToken = (user: Partial<SafeUser>, jti: string): string => {
-    const { _id, role } = user
+    const { _id, role, activeWorkspace } = user
     const payload = {
         user: {
             _id,
-            role
+            role,
+            activeWorkspace,
         },
         jti
     }
@@ -21,11 +22,12 @@ export const generateAuthToken = (user: Partial<SafeUser>, jti: string): string 
 }
 
 export const generateRefreshToken = (user: Partial<SafeUser>, jti: string): string => {
-    const { _id, role } = user
+    const { _id, role, activeWorkspace } = user
     const payload = {
         user: {
             _id,
-            role
+            role,
+            activeWorkspace,
         },
         jti
     }
